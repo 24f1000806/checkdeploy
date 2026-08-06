@@ -54,10 +54,21 @@ def _load_config():
         return json.load(f)
 
 
-def _load_tokenizer():
-    with open(os.path.join(MODELS_DIR, "tokenizer.pkl"), "rb") as f:
+def _load_word_index():
+    with open(os.path.join(MODELS_DIR, "word_index.pkl"), "rb") as f:
         return pickle.load(f)
 
+def texts_to_sequences(texts, word_index):
+    sequences = []
+    unk = word_index.get("<UNK>", 1)
+
+    for text in texts:
+        seq = []
+        for word in text.split():
+            seq.append(word_index.get(word, unk))
+        sequences.append(seq)
+
+    return sequences
 
 def _load_model(config):
     model = BiLSTMClassifier(
@@ -77,7 +88,7 @@ def _load_model(config):
 
 
 _config = _load_config()
-_tokenizer = _load_tokenizer()
+_word_index = _load_word_index()
 _model = _load_model(_config)
 
 MAX_LENGTH = _config["MAX_LENGTH"]
@@ -109,7 +120,7 @@ def predict(prompt: str, options: dict):
         for label in labels_present
     ]
 
-    sequences = _tokenizer.texts_to_sequences(texts)
+    sequences = texts_to_sequences(texts, _word_index)
 
     padded = []
 
