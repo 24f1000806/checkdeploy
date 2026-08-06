@@ -1,0 +1,7 @@
+{
+  "VOCAB_SIZE": 4000,
+  "MAX_LENGTH": 96,
+  "EMBED_DIM": 200,
+  "HIDDEN_DIM": 128,
+  "DROPOUT": 0.4
+}
