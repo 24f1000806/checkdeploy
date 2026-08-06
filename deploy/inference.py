@@ -4,8 +4,6 @@ import json
 import pickle
 
 import torch
-import torch.nn.functional as F
-from tensorflow.keras.preprocessing.sequence import pad_sequences
 
 from model import BiLSTMClassifier
 
@@ -112,15 +110,19 @@ def predict(prompt: str, options: dict):
     ]
 
     sequences = _tokenizer.texts_to_sequences(texts)
-    padded = pad_sequences(
-        sequences, maxlen=MAX_LENGTH, padding="post", truncating="post"
-    )
+
+    padded = []
+
+    for seq in sequences:
+        seq = seq[:MAX_LENGTH]          # Truncate
+        seq = seq + [0] * (MAX_LENGTH - len(seq))  # Pad
+        padded.append(seq)
 
     input_ids = torch.tensor(padded, dtype=torch.long).to(_device)
 
     with torch.no_grad():
         logits = _model(input_ids)
-        probs = F.softmax(logits, dim=1)[:, 1]  # P(this option is correct)
+        probs = torch.softmax(logits, dim=1)[:, 1]  # P(this option is correct)
 
     scores = list(zip(labels_present, probs.cpu().numpy().tolist()))
     scores.sort(key=lambda pair: pair[1], reverse=True)

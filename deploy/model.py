@@ -1,5 +1,5 @@
+import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 
 class BiLSTMClassifier(nn.Module):
@@ -25,11 +25,11 @@ class BiLSTMClassifier(nn.Module):
         output, _ = self.lstm(x)
         x = output.mean(dim=1)
 
-        x = F.relu(self.fc1(x))
+        x = torch.relu(self.fc1(x))
 
         x = self.dropout(x)
 
-        x = F.relu(self.fc2(x))
+        x = torch.relu(self.fc2(x))
 
         x = self.dropout(x)
 
